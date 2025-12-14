@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Model Hub - Multi-Model Orchestration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .model-selector {
+            margin-bottom: 30px;
+        }
+
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .model-card {
+            background: linear-gradient(145deg, #f0f0f0, #ffffff);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .model-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .model-card:hover::before {
+            left: 100%;
+        }
+
+        .model-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(145deg, #e8ecff, #f5f7ff);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .model-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .model-card p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-btn:not(.active) {
+            background: #ddd;
+            color: #666;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .prompt-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .prompt-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .execute-btn {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .execute-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .execute-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            transition: transform 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .result-card.claude { border-left-color: #ff6b35; }
+        .result-card.chatgpt { border-left-color: #00a67e; }
+        .result-card.copilot { border-left-color: #0078d4; }
+        .result-card.llama { border-left-color: #7c3aed; }
+        .result-card.gemini { border-left-color: #4285f4; }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .model-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .claude .model-icon { background: #ff6b35; }
+        .chatgpt .model-icon { background: #00a67e; }
+        .copilot .model-icon { background: #0078d4; }
+        .llama .model-icon { background: #7c3aed; }
+        .gemini .model-icon { background: #4285f4; }
+
+        .result-content {
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .orchestration-panel {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 2px dashed #667eea;
+        }
+
+        .orchestration-step {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .step-header {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .model-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 10px;
+            }
+            
+            .mode-selector {
+                flex-direction: column;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AI Model Hub</h1>
+            <p>Orchestrate multiple AI models to work together seamlessly</p>
+        </div>
+
+        <div class="main-panel">
+            <div class="model-selector">
+                <h2 style="margin-bottom: 20px; color: #333;">Select AI Models</h2>
+                <div class="model-grid">
+                    <div class="model-card" data-model="claude">
+                        <h3>Claude</h3>
+                        <p>Anthropic's reasoning-focused AI</p>
+                    </div>
+                    <div class="model-card" data-model="chatgpt">
+                        <h3>ChatGPT</h3>
+                        <p>OpenAI's conversational AI</p>
+                    </div>
+                    <div class="model-card" data-model="copilot">
+                        <h3>Copilot</h3>
+                        <p>Microsoft's productivity AI</p>
+                    </div>
+                    <div class="model-card" data-model="llama">
+                        <h3>Llama</h3>
+                        <p>Meta's open-source model</p>
+                    </div>
+                    <div class="model-card" data-model="gemini">
+                        <h3>Gemini</h3>
+                        <p>Google's multimodal AI</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="simultaneous">🔄 Simultaneous Query</button>
+                <button class="mode-btn" data-mode="orchestrated">🎭 Orchestrated Workflow</button>
+                <button class="mode-btn" data-mode="comparison">⚖️ Response Comparison</button>
+                <button class="mode-btn" data-mode="debate">💬 Model Debate</button>
+            </div>
+
+            <div class="input-section">
+                <textarea class="prompt-input" placeholder="Enter your prompt here... (e.g., 'Explain quantum computing in simple terms' or 'Help me plan a marketing strategy for a new product')"></textarea>
+                <div class="controls">
+                    <button class="execute-btn" onclick="executeQuery()">Execute Query</button>
+                    <label style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="streaming" checked>
+                        <span>Stream responses</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section" id="results" style="display: none;"></div>
+    </div>
+
+    <script>
+        let selectedModels = new Set();
+        let currentMode = 'simultaneous';
+
+        // Model configurations
+        const modelConfigs = {
+            claude: {
+                name: 'Claude',
+                color: '#ff6b35',
+                icon: 'C',
+                personality: 'thoughtful and analytical'
+            },
+            chatgpt: {
+                name: 'ChatGPT',
+                color: '#00a67e',
+                icon: 'G',
+                personality: 'conversational and helpful'
+            },
+            copilot: {
+                name: 'Copilot',
+                color: '#0078d4',
+                icon: 'M',
+                personality: 'productivity-focused'
+            },
+            llama: {
+                name: 'Llama',
+                color: '#7c3aed',
+                icon: 'L',
+                personality: 'open and versatile'
+            },
+            gemini: {
+                name: 'Gemini',
+                color: '#4285f4',
+                icon: 'G',
+                personality: 'multimodal and comprehensive'
+            }
+        };
+
+        // Model selection handling
+        document.querySelectorAll('.model-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const model = card.dataset.model;
+                if (selectedModels.has(model)) {
+                    selectedModels.delete(model);
+                    card.classList.remove('selected');
+                } else {
+                    selectedModels.add(model);
+                    card.classList.add('selected');
+                }
+                updateExecuteButton();
+            });
+        });
+
+        // Mode selection handling
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMode = btn.dataset.mode;
+            });
+        });
+
+        function updateExecuteButton() {
+            const executeBtn = document.querySelector('.execute-btn');
+            executeBtn.disabled = selectedModels.size === 0;
+            executeBtn.textContent = selectedModels.size === 0 ? 'Select models first' : 'Execute Query';
+        }
+
+        // Simulated responses for different models
+        const simulatedResponses = {
+            claude: {
+                'quantum computing': "Quantum computing leverages quantum mechanical phenomena like superposition and entanglement to process information in fundamentally different ways than classical computers. Think of it like this: while a classical bit is either 0 or 1, a quantum bit (qubit) can be both simultaneously until measured. This allows quantum computers to explore multiple solution paths at once, making them potentially revolutionary for problems like cryptography, drug discovery, and optimization.",
+                'marketing strategy': "I'd recommend a comprehensive approach starting with market research to understand your target audience deeply. Consider a multi-channel strategy combining content marketing, social proof through testimonials, and strategic partnerships. Focus on your unique value proposition and build authentic relationships with customers rather than just pushing features.",
+                'default': "I approach this question by first analyzing the core components and their relationships. Based on the context you've provided, I can offer a structured perspective that considers multiple angles and potential implications."
+            },
+            chatgpt: {
+                'quantum computing': "Great question! Quantum computing is like having a super-powered computer that can think about many possibilities at the same time. Instead of regular computer bits that are either on (1) or off (0), quantum computers use 'qubits' that can be both on AND off simultaneously. This lets them solve certain types of problems much faster than regular computers - especially things like code-breaking, simulating molecules for new medicines, and solving complex puzzles.",
+                'marketing strategy': "For your marketing strategy, I'd start with understanding your customers' journey and pain points. Consider these key elements: brand positioning that differentiates you, content that provides real value, social media engagement where your audience actually spends time, and measurable goals with clear KPIs. Don't forget about retention - it's often more cost-effective than acquisition!",
+                'default': "I'm here to help! Let me break this down in a way that's practical and actionable. I'll focus on giving you clear, step-by-step guidance that you can implement right away."
+            },
+            copilot: {
+                'quantum computing': "From a productivity standpoint, quantum computing represents a paradigm shift in computational capability. Key business implications include enhanced cryptographic security, accelerated machine learning model training, and breakthrough potential in logistics optimization. Organizations should begin preparing quantum-ready strategies while monitoring developments in quantum-resistant cryptography.",
+                'marketing strategy': "Let's structure this systematically: 1) Market Analysis - competitor research, customer segmentation; 2) Channel Strategy - digital presence, content calendar, automation tools; 3) Metrics Framework - KPIs, attribution modeling, ROI tracking; 4) Resource Allocation - budget distribution, team responsibilities, timeline milestones. I can help you create templates and frameworks for each component.",
+                'default': "I'll help you approach this systematically with actionable frameworks and tools. Let me organize this into clear next steps with measurable outcomes and practical implementation strategies."
+            },
+            llama: {
+                'quantum computing': "Quantum computing harnesses quantum mechanics principles to perform computations. Key concepts include quantum superposition (qubits existing in multiple states), quantum entanglement (correlated qubit states), and quantum interference (amplifying correct answers). Current applications focus on optimization problems, cryptanalysis, and quantum simulation. While still emerging, the technology shows promise for exponential speedups in specific problem domains.",
+                'marketing strategy': "Effective marketing strategy requires audience research, competitive analysis, and clear value proposition development. Consider omnichannel approaches integrating digital and traditional media. Leverage data analytics for personalization and A/B testing for optimization. Build brand authority through thought leadership and customer success stories. Ensure alignment between marketing messaging and actual product capabilities.",
+                'default': "I can provide a balanced analysis of this topic, drawing from various perspectives and established knowledge. Let me present the key considerations and potential approaches in a structured way."
+            },
+            gemini: {
+                'quantum computing': "Quantum computing represents a convergence of physics, computer science, and engineering. Beyond the technical aspects of superposition and entanglement, consider the broader implications: quantum supremacy demonstrations, the quantum internet's potential, and the race for practical quantum advantage. Visual analogy: imagine a maze where classical computers try one path at a time, while quantum computers explore all paths simultaneously through quantum parallelism.",
+                'marketing strategy': "Your marketing strategy should integrate multiple touchpoints and data sources. Consider customer journey mapping with behavioral analytics, cross-platform attribution modeling, and AI-driven personalization. Incorporate visual storytelling, interactive content, and community building. Think beyond traditional funnels to ecosystem approaches where customers become advocates and co-creators of value.",
+                'default': "I can analyze this from multiple dimensions - technical, strategic, and contextual. Let me provide a comprehensive view that considers various stakeholder perspectives and potential future developments."
+            }
+        };
+
+        function getResponse(model, prompt) {
+            const lowerPrompt = prompt.toLowerCase();
+            if (lowerPrompt.includes('quantum')) return simulatedResponses[model]['quantum computing'];
+            if (lowerPrompt.includes('marketing') || lowerPrompt.includes('strategy')) return simulatedResponses[model]['marketing strategy'];
+            return simulatedResponses[model]['default'];
+        }
+
+        async function executeQuery() {
+            const prompt = document.querySelector('.prompt-input').value.trim();
+            if (!prompt || selectedModels.size === 0) return;
+
+            const resultsSection = document.getElementById('results');
+            resultsSection.style.display = 'block';
+            resultsSection.innerHTML = '';
+
+            if (currentMode === 'simultaneous') {
+                await handleSimultaneousMode(prompt);
+            } else if (currentMode === 'orchestrated') {
+                await handleOrchestratedMode(prompt);
+            } else if (currentMode === 'comparison') {
+                await handleComparisonMode(prompt);
+            } else if (currentMode === 'debate') {
+                await handleDebateMode(prompt);
+            }
+        }
+
+        async function handleSimultaneousMode(prompt) {
+            const resultsGrid = document.createElement('div');
+            resultsGrid.className = 'results-grid';
+            document.getElementById('results').appendChild(resultsGrid);
+
+            const isStreaming = document.getElementById('streaming').checked;
+
+            for (const model of selectedModels) {
+                const config = modelConfigs[model];
+                const resultCard = document.createElement('div');
+                resultCard.className = `result-card ${model}`;
+                
+                resultCard.innerHTML = `
+                    <div class="result-header">
+                        <div class="model-icon">${config.icon}</div>
+                        <h3>${config.name}</h3>
+                    </div>
+                    <div class="result-content">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <span>Generating response...</span>
+                        </div>
+                    </div>
+                `;
+                
+                resultsGrid.appendChild(resultCard);
+                
+                // Simulate response delay
+                setTimeout(() => {
+                    const content = resultCard.querySelector('.result-content');
+                    const response = getResponse(model, prompt);
+                    
+                    if (isStreaming) {
+                        simulateStreaming(content, response);
+                    } else {
+                        content.innerHTML = response;
+                    }
+                }, Math.random() * 2000 + 1000);
+            }
+        }
+
+        async function handleOrchestratedMode(prompt) {
+            const orchestrationPanel = document.createElement('div');
+            orchestrationPanel.className = 'orchestration-panel';
+            document.getElementById('results').appendChild(orchestrationPanel);
+
+            const models = Array.from(selectedModels);
+            
+            // Step 1: Initial responses
+            addOrchestrationStep(orchestrationPanel, "Step 1: Gathering initial responses from selected models");
+            await delay(1000);
+
+            for (let i = 0; i < models.length; i++) {
+                const model = models[i];
+                const config = modelConfigs[model];
+                
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'orchestration-step fade-in';
+                stepDiv.innerHTML = `
+                    <div class="step-header">${config.name} Response:</div>
+                    <div>${getResponse(model, prompt)}</div>
+                `;
+                orchestrationPanel.appendChild(stepDiv);
+                await delay(1500);
+            }
+
+            // Step 2: Cross-model analysis
+            addOrchestrationStep(orchestrationPanel, "Step 2: Cross-model analysis and synthesis");
+            await delay(1000);
+
+            const synthesisDiv = document.createElement('div');
+            synthesisDiv.className = 'orchestration-step fade-in';
+            synthesisDiv.innerHTML = `
+                <div class="step-header">Synthesis Result:</div>
+                <div>After analyzing responses from ${models.map(m => modelConfigs[m].name).join(', ')}, I've identified key convergences and unique insights. The models show consensus on core principles while offering complementary perspectives on implementation details. This orchestrated approach provides a more comprehensive understanding than any single model could achieve alone.</div>
+            `;
+            orchestrationPanel.appendChild(synthesisDiv);
+        }
+
+        async function handleComparisonMode(prompt) {
+            const comparisonDiv = document.createElement('div');
+            comparisonDiv.className = 'main-panel fade-in';
+            document.getElementById('results').appendChild(comparisonDiv);
+
+            comparisonDiv.innerHTML = '<h2 style="margin-bottom: 20px;">Model Response Comparison</h2>';
+
+            const table = document.createElement('table');
+            table.className = 'comparison-table';
+            
+            let tableHTML = '<thead><tr><th>Model</th><th>Response Style</th><th>Key Strengths</th><th>Response Preview</th></tr></thead><tbody>';
+            
+            for (const model of selectedModels) {
+                const config = modelConfigs[model];
+                const response = getResponse(model, prompt);
+                const preview = response.substring(0, 100) + '...';
+                
+                tableHTML += `
+                    <tr>
+                        <td><strong style="color: ${config.color}">${config.name}</strong></td>
+                        <td>${config.personality}</td>
+                        <td>${getModelStrengths(model)}</td>
+                        <td>${preview}</td>
+                    </tr>
+                `;
+            }
+            
+            tableHTML += '</tbody>';
+            table.innerHTML = tableHTML;
+            comparisonDiv.appendChild(table);
+        }
+
+        async function handleDebateMode(prompt) {
+            const debateDiv = document.createElement('div');
+            debateDiv.className = 'main-panel fade-in';
+            document.getElementById('results').appendChild(debateDiv);
+
+            debateDiv.innerHTML = `
+                <h2 style="margin-bottom: 20px;">🗣️ Model Debate</h2>
+                <p style="margin-bottom: 20px; color: #666;">Selected models will present different perspectives and engage in constructive dialogue.</p>
+            `;
+
+            const models = Array.from(selectedModels);
+            
+            for (let round = 1; round <= 2; round++) {
+                const roundDiv = document.createElement('div');
+                roundDiv.innerHTML = `<h3 style="margin: 20px 0 10px 0; color: #667eea;">Round ${round}</h3>`;
+                debateDiv.appendChild(roundDiv);
+
+                for (const model of models) {
+                    const config = modelConfigs[model];
+                    const debateCard = document.createElement('div');
+                    debateCard.className = `result-card ${model} fade-in`;
+                    debateCard.style.marginBottom = '15px';
+                    
+                    const response = round === 1 ? getResponse(model, prompt) : getDebateRebuttal(model, prompt);
+                    
+                    debateCard.innerHTML = `
+                        <div class="result-header">
+                            <div class="model-icon">${config.icon}</div>
+                            <h4>${config.name} - Round ${round}</h4>
+                        </div>
+                        <div class="result-content">${response}</div>
+                    `;
+                    
+                    debateDiv.appendChild(debateCard);
+                    await delay(1200);
+                }
+            }
+        }
+
+        function getModelStrengths(model) {
+            const strengths = {
+                claude: 'Deep reasoning, safety-focused',
+                chatgpt: 'Natural conversation, creativity',
+                copilot: 'Code generation, productivity',
+                llama: 'Open-source flexibility, transparency',
+                gemini: 'Multimodal capabilities, integration'
+            };
+            return strengths[model];
+        }
+
+        function getDebateRebuttal(model, prompt) {
+            const rebuttals = {
+                claude: "While I appreciate the perspectives shared, I'd like to emphasize the importance of considering long-term implications and potential risks. A more cautious, thoroughly reasoned approach might yield better outcomes.",
+                chatgpt: "Building on what others have said, I think there's room for a more user-friendly approach that prioritizes accessibility and ease of understanding for broader audiences.",
+                copilot: "From a practical implementation standpoint, we should focus on actionable steps and measurable outcomes. Let me suggest some concrete frameworks we could apply here.",
+                llama: "I'd like to offer an alternative perspective that considers open-source principles and community-driven solutions, which might provide more sustainable long-term value.",
+                gemini: "Taking a more holistic view, we should consider how this integrates with broader systems and ecosystems, including visual and multimodal aspects that others might have overlooked."
+            };
+            return rebuttals[model];
+        }
+
+        function addOrchestrationStep(container, stepText) {
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'orchestration-step fade-in';
+            stepDiv.innerHTML = `<div class="step-header">${stepText}</div>`;
+            container.appendChild(stepDiv);
+        }
+
+        async function simulateStreaming(container, text) {
+            container.innerHTML = '';
+            const words = text.split(' ');
+            
+            for (let i = 0; i < words.length; i++) {
+                container.innerHTML += words[i] + ' ';
+                await delay(100);
+            }
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize with Claude selected
+        document.querySelector('[data-model="claude"]').click();
+        updateExecuteButton();
+
+        // Add some nice hover effects
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.model-card, .result-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-5px)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    if (!card.classList.contains('selected')) {
+                        card.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

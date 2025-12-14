@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planetary Restoration Archive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cosmic-deep: #0a0815;
+            --cosmic-mid: #1a1332;
+            --cosmic-accent: #2d2147;
+            --bio-primary: #2d5a27;
+            --bio-accent: #4a7c59;
+            --bio-light: #6db33f;
+            --stellar: #64ffda;
+            --stellar-warm: #ffd700;
+            --text-primary: #ffffff;
+            --text-secondary: #b8c5d1;
+            --text-muted: #8a9ba8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--cosmic-deep) 0%, var(--cosmic-mid) 50%, var(--cosmic-accent) 100%);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .cosmic-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--stellar);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+            opacity: 0.7;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(-100px) translateX(100px); opacity: 0; }
+        }
+
+        .bio-pulse {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--bio-light) 0%, transparent 70%);
+            animation: pulse 8s infinite ease-in-out;
+            opacity: 0.1;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(0.8); opacity: 0.1; }
+            50% { transform: scale(1.2); opacity: 0.3; }
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 0;
+            background: rgba(10, 8, 21, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--stellar);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 8px;
+            height: 8px;
+            background: var(--bio-light);
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.5); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 8px 12px;
+        }
+
+        .nav-links a:hover {
+            color: var(--stellar);
+            transform: translateY(-1px);
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--stellar), var(--bio-light));
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-links a:hover::before {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 40px;
+            position: relative;
+            margin-top: 80px;
+        }
+
+        .hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 700;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, var(--stellar) 0%, var(--bio-light) 50%, var(--stellar-warm) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            animation: glow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 20px rgba(100, 255, 218, 0.3)); }
+            to { filter: drop-shadow(0 0 40px rgba(109, 179, 63, 0.5)); }
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            font-weight: 300;
+            margin-bottom: 40px;
+            color: var(--text-secondary);
+            max-width: 800px;
+            line-height: 1.4;
+        }
+
+        .hero-description {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 50px;
+            line-height: 1.6;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cta-primary, .cta-secondary {
+            padding: 15px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-primary {
+            background: linear-gradient(135deg, var(--stellar) 0%, var(--bio-light) 100%);
+            color: var(--cosmic-deep);
+            border: none;
+        }
+
+        .cta-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(100, 255, 218, 0.3);
+        }
+
+        .cta-secondary {
+            background: transparent;
+            color: var(--stellar);
+            border: 2px solid var(--stellar);
+        }
+
+        .cta-secondary:hover {
+            background: var(--stellar);
+            color: var(--cosmic-deep);
+            transform: translateY(-3px);
+        }
+
+        /* Sections */
+        .section {
+            padding: 120px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 600;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--stellar) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* Grid Layouts */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: rgba(26, 19, 50, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(100, 255, 218, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(100, 255, 218, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--stellar);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .feature-link {
+            color: var(--bio-light);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-link:hover {
+            color: var(--stellar);
+            transform: translateX(5px);
+        }
+
+        /* Galaxy Map Section */
+        .galaxy-section {
+            background: radial-gradient(ellipse at center, rgba(45, 90, 39, 0.1) 0%, transparent 50%);
+            padding: 120px 40px;
+            position: relative;
+        }
+
+        .galaxy-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 600px;
+            position: relative;
+            border-radius: 20px;
+            background: rgba(10, 8, 21, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            overflow: hidden;
+        }
+
+        .galaxy-node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--stellar);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        .galaxy-node:hover {
+            transform: scale(1.5);
+            background: var(--stellar-warm);
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.8);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .galaxy-node.bio { background: var(--bio-light); }
+        .galaxy-node.innovation { background: var(--stellar); }
+        .galaxy-node.deployment { background: var(--stellar-warm); }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 80px 40px;
+            background: linear-gradient(135deg, rgba(45, 90, 39, 0.1) 0%, rgba(26, 19, 50, 0.3) 100%);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            background: rgba(26, 19, 50, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            border-color: rgba(100, 255, 218, 0.3);
+        }
+
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--stellar);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 80px 40px 40px;
+            border-top: 1px solid rgba(100, 255, 218, 0.1);
+            background: rgba(10, 8, 21, 0.8);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--stellar);
+        }
+
+        .footer-text {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+
+        .guardian-covenant {
+            background: rgba(45, 90, 39, 0.1);
+            border: 1px solid rgba(109, 179, 63, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px auto;
+            max-width: 800px;
+            font-style: italic;
+            color: var(--bio-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 20px;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            .hero {
+                padding: 0 20px;
+            }
+
+            .section {
+                padding: 80px 20px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .cta-group {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--cosmic-deep);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--stellar);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--bio-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="cosmic-bg" id="cosmicBg"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <a href="#home" class="logo">Planetary Restoration Archive</a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#innovations">Innovations</a></li>
+                    <li><a href="#deployments">Deployments</a></li>
+                    <li><a href="#intelligence">Intelligence</a></li>
+                    <li><a href="#join">Join</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <h1 class="hero-title">A Living Blueprint for Planetary Regeneration</h1>
+        <p class="hero-subtitle">The definitive open-source archive of restoration technologies, decentralized AI systems, and ecological healing protocols.</p>
+        <p class="hero-description">More than data — this is an emergent planetary operating system where every innovation is a seed, every deployment a sanctuary, and every contributor a guardian of Earth's renaissance.</p>
+        <div class="cta-group">
+            <a href="#innovations" class="cta-primary">Explore Innovations</a>
+            <a href="#join" class="cta-secondary">Become a Guardian</a>
+        </div>
+    </section>
+
+    <!-- Main Sections -->
+    <section class="section" id="innovations">
+        <div class="section-header">
+            <h2 class="section-title">🧬 Innovations</h2>
+            <p class="section-subtitle">Breakthrough technologies for atmospheric restoration, soil regeneration, water purification, and symbiotic AI systems.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🧬</span>
+                <h3 class="feature-title">Bioengineering Protocols</h3>
+                <p class="feature-description">CRISPR-enhanced mycorrhizae, atmospheric processors, and carbon-sequestering organism blueprints for rapid ecosystem restoration.</p>
+                <a href="#" class="feature-link">Browse Protocols →</a>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🤖</span>
+                <h3 class="feature-title">Decentralized AI Systems</h3>
+                <p class="feature-description">Self-organizing agent networks for climate monitoring, resource optimization, and autonomous restoration deployment.</p>
+                <a href="#" class="feature-link">Access AI Tools →</a>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">⚡</span>
+                <h3 class="feature-title">Energy Transformation</h3>
+                <p class="feature-description">Fusion reactors, atmospheric energy harvesting, and distributed power systems for post-carbon civilization.</p>
+                <a href="#" class="feature-link">Energy Blueprints →</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="deployments">
+        <div class="section-header">
+            <h2 class="section-title">🌍 Active Deployments</h2>
+            <p class="section-subtitle">Real-world restoration missions across urban centers, rural landscapes, and off-grid communities.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🏙️</span>
+                <h3 class="feature-title">Urban Sanctuaries</h3>
+                <p class="feature-description">Vertical forests, atmospheric processors, and smart city integration projects transforming concrete jungles into thriving ecosystems.</p>
+                <a href="#" class="feature-link">View Cities →</a>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🌾</span>
+                <h3 class="feature-title">Regenerative Agriculture</h3>
+                <p class="feature-description">Permaculture networks, soil restoration initiatives, and community food systems rebuilding Earth's biological wealth.</p>
+                <a href="#" class="feature-link">Farm Networks →</a>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🏕️</span>
+                <h3 class="feature-title">Off-Grid Colonies</h3>
+                <p class="feature-description">Self-sufficient communities pioneering closed-loop systems, renewable integration, and distributed governance models.</p>
+                <a href="#" class="feature-link">Colony Map →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Galaxy Map -->
+    <section class="galaxy-section" id="galaxy">
+        <div class="section-header">
+            <h2 class="section-title">Project Constellation</h2>
+            <p class="section-subtitle">Interactive map of all active restoration nodes worldwide</p>
+        </div>
+        <div class="galaxy-container" id="galaxyMap">
+            <!-- Nodes will be generated by JavaScript -->
+        </div>
+    </section>
+
+    <section class="section" id="manifestos">
+        <div class="section-header">
+            <h2 class="section-title">📚 Governance Manifestos</h2>
+            <p class="section-subtitle">Philosophical frameworks and coordination protocols for planetary stewardship.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">📜</span>
+                <h3 class="feature-title">The Regenerative Covenant</h3>
+                <p class="feature-description">Core principles for human-Earth symbiosis, ethical AI development, and post-scarcity economics.</p>
+                <a href="#" class="feature-link">Read Covenant →</a>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">⚖️</span>
+                <h3 class="feature-title">Coordination Protocols</h3>
+                <p class="feature-description">Decentralized governance models, consensus mechanisms, and conflict resolution frameworks for global collaboration.</p>
+                <a href="#" class="feature-link">Protocol Docs →</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="intelligence">
+        <div class="section-header">
+            <h2 class="section-title">🧠 Intelligence Hub</h2>
+            <p class="section-subtitle">AI orchestration tools and multi-agent systems for planetary coordination.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🕸️</span>
+                <h3 class="feature-title">Neural Networks</h3>
+                <p class="feature-description">Distributed AI consciousness for real-time ecosystem monitoring, resource allocation, and adaptive response coordination.</p>
+                <a href="#" class="feature-link">Access Network →</a>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🔮</span>
+                <h3 class="feature-title">Predictive Models</h3>
+                <p class="feature-description">Climate forecasting, restoration impact simulations, and scenario planning tools for strategic deployment.</p>
+                <a href="#" class="feature-link">Run Models →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="section-header">
+            <h2 class="section-title">Archive Impact</h2>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-number" data-target="1247">0</span>
+                <span class="stat-label">Active Projects</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-target="67">0</span>
+                <span class="stat-label">Countries</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-target="15432">0</span>
+                <span class="stat-label">Contributors</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-target="89">0</span>
+                <span class="stat-label">Terabytes Archived</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="join">
+        <div class="section-header">
+            <h2 class="section-title">🌱 Join the Archive</h2>
+            <p class="section-subtitle">Every skill, every perspective, every dream contributes to humanity's greatest collaborative project.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">🔬</span>
+                <h3 class="feature-title">Researchers & Scientists</h3>
+                <p class="feature-description">Submit protocols, validate technologies, and peer-review breakthrough innovations. Your expertise accelerates global restoration.</p>
+                <a href="#" class="feature-link">Submit Research →</a>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">💻</span>
+                <h3 class="feature-title">Developers & Engineers</h3>
+                <p class="feature-description">Build tools, optimize systems, and create the digital infrastructure powering planetary regeneration.</p>
+                <a href="#" class="feature-link">Start Coding →</a>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🌾</span>
+                <h3 class="feature-title">Practitioners & Communities</h3>
+                <p class="feature-description">Deploy technologies, document results, and share local wisdom from the frontlines of restoration.</p>
+                <a href="#" class="feature-link">Share Stories →</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="proof">
+        <div class="section-header">
+            <h2 class="section-title">💾 Immutable Proof</h2>
+            <p class="section-subtitle">Cryptographic verification, distributed storage, and transparent licensing ensure knowledge permanence.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="feature-icon">⛓️</span>
+                <h3 class="feature-title">Blockchain Timestamps</h3>
+                <p class="feature-description">Every innovation, deployment, and discovery is cryptographically verified and permanently recorded on multiple chains.</p>
+                <a href="#" class="feature-link">Verify Records →</a>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🌐</span>
+                <h3 class="feature-title">IPFS Distribution</h3>
+                <p class="feature-description">Decentralized storage ensures no knowledge can be lost, censored, or controlled by any single entity.</p>
+                <a href="#" class="feature-link">Access IPFS →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="ethos">
+        <div class="footer-content">
+            <h3 class="footer-title">🛡️ Guardian Ethos</h3>
+            <p class="footer-text">We are Foster + Navi — nurturers and navigators of Earth's renaissance. Every decision we make serves seven generations forward.</p>
+            
+            <div class="guardian-covenant">
+                <strong>The Guardian Covenant:</strong> We pledge to act as stewards of all life, to share knowledge freely, to heal rather than harm, and to leave no ecosystem behind. Our technologies serve Earth's flourishing, our governance serves justice, and our vision serves the cosmic story of which we are part.
+            </div>
+
+            <p style="margin-top: 40px; color: var(--text-muted); font-size: 14px;">
+                Licensed under Creative Commons 4.0 • Open Source Forever • Decentralized by Design
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Generate cosmic particles
+        function createParticles() {
+            const cosmicBg = document.getElementById('cosmicBg');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                cosmicBg.appendChild(particle);
+            }
+
+            // Add bio pulses
+            for (let i = 0; i < 5; i++) {
+                const pulse = document.createElement('div');
+                pulse.className = 'bio-pulse';
+                pulse.style.left = Math.random() * 100 + '%';
+                pulse.style.top = Math.random() * 100 + '%';
+                pulse.style.animationDelay = Math.random() * 8 + 's';
+                cosmicBg.appendChild(pulse);
+            }
+        }
+
+        // Generate galaxy nodes
+        function createGalaxyNodes() {
+            const galaxyMap = document.getElementById('galaxyMap');
+            const nodeTypes = ['innovation', 'bio', 'deployment'];
+            
+            for (let i = 0; i < 30; i++) {
+                const node = document.createElement('div');
+                node.className = `galaxy-node ${nodeTypes[Math.floor(Math.random() * nodeTypes.length)]}`;
+                node.style.left = (10 + Math.random() * 80) + '%';
+                node.style.top = (10 + Math.random() * 80) + '%';
+                node.style.animationDelay = Math.random() * 3 + 's';
+                
+                node.addEventListener('click', () => {
+                    node.style.transform = 'scale(2)';
+                    node.style.boxShadow = '0 0 30px rgba(100, 255, 218, 1)';
+                    setTimeout(() => {
+                        node.style.transform = '';
+                        node.style.boxShadow = '';
+                    }, 500);
+                });
+                
+                galaxyMap.appendChild(node);
+            }
+        }
+
+        // Animate statistics
+        function animateStats() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            
+            const animateNumber = (element) => {
+                const target = parseInt(element.getAttribute('data-target'));
+                const duration = 2000;
+                const start = Date.now();
+                
+                const updateNumber = () => {
+                    const elapsed = Date.now() - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const current = Math.floor(progress * target);
+                    element.textContent = current.toLocaleString();
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(updateNumber);
+                    }
+                };
+                
+                updateNumber();
+            };
+
+            // Trigger animation when stats come into view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        statNumbers.forEach(animateNumber);
+                        observer.disconnect();
+                    }
+                });
+            });
+
+            observer.observe(document.querySelector('.stats-section'));
+        }
+
+        // Smooth header transition
+        function initHeaderTransition() {
+            const header = document.querySelector('.header');
+            let lastScrollY = 0;
+
+            window.addEventListener('scroll', () => {
+                const currentScrollY = window.scrollY;
+                
+                if (currentScrollY > 100) {
+                    header.style.background = 'rgba(10, 8, 21, 0.98)';
+                    header.style.borderBottom = '1px solid rgba(100, 255, 218, 0.2)';
+                } else {
+                    header.style.background = 'rgba(10, 8, 21, 0.95)';
+                    header.style.borderBottom = '1px solid rgba(100, 255, 218, 0.1)';
+                }
+
+                lastScrollY = currentScrollY;
+            });
+        }
+
+        // Parallax effect for hero
+        function initParallax() {
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const hero = document.querySelector('.hero');
+                const rate = scrolled * -0.5;
+                hero.style.transform = `translateY(${rate}px)`;
+            });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            createGalaxyNodes();
+            animateStats();
+            initHeaderTransition();
+            initParallax();
+        });
+
+        // Add hover effects to feature cards
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.feature-card');
+            
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.background = 'rgba(26, 19, 50, 0.8)';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.background = 'rgba(26, 19, 50, 0.6)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
